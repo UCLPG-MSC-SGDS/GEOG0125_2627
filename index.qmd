@@ -1,0 +1,44 @@
+# Welcome {.unnumbered}
+
+```{r echo=FALSE, out.width = "100%", fig.align='center', cache=FALSE}
+knitr::include_graphics('images/general/UCL_MSC_SDGS_banner.jpeg') 
+```
+<br />
+
+Welcome to **GEOG0125: Advanced Topics in Social Geographic Data Science**, one of the core term two modules for this MSc programme ([**Social and Geographic Data Science**](https://www.geog.ucl.ac.uk/study/graduate-taught/msc-social-and-geographic-data-science)). This module has been designed as an advanced topics module to learn data science concepts and methods, and to apply them in the domains of social science and geography. The module will introduce concepts such as **Bayesian inference** and **Machine Learning methodologies**.
+
+## Description {.unnumbered}
+
+This particular facet in the advanced topics course aims to cover an **Introduction to Bayesian Inference** in RStudio using [**Stan**](https://mc-stan.org), which is an interface to RStudio that allows state-of-the-art statistical modelling and Bayesian computation. We will introduce you to the absolute basics of writing your own probabilistic codes for carrying out a broad range of multivariable regression models within the Bayesian framework: **Generalised Linear Modelling (GLMs)**; **Hierarchical Models**; and most notably for **Spatial Risk Models**; and **Spatiotemporal Risk Models and Bayesian Updating** for prediction in risk assessment and uncertainties with **exceedance probabilities**, which all have significant applications to many fields such as **spatial epidemiology**, **social sciences**, or **disaster risk reduction** and many more.
+
+All lecture notes, recommended reading and seminar learning materials as well as supplementary video content will be hosted on this webpage.
+
+You can download the lecture notes and data sets for the practical lesson from the table below.
+
+| **Week** | **Downloads** | **Topics** |
+|:----------------|:------------------------|:--------------------------------------|
+|1 | [**[Lecture Notes]**](Lecture_notes/GEOG0125%20Week%201%20Lecture%20-%20Introduction%20to%20Bayesian%20Statistics.pdf) | Introduction to Bayesian Inference |
+|2 | [**[Lecture Notes]**](Lecture_notes/GEOG0125%20Week%202%20Lecture%20-%20Bayesian%20GLMs.pdf) [**[Datasets]**](Dataset%20for%20Week%202.zip) | Bayesian Generalised Linear Models (GLMs) |
+|3 | [**[Lecture Notes]**](Lecture_notes/GEOG0125%20Week%207%20Lecture%20-%20Bayesian%20Hierarchical%20Models.pdf)  [**[Datasets]**](Dataset%20for%20Week%203.zip) | Bayesian Hierarchical Models |
+|4 | [**[Lecture Notes]**](Lecture_notes/GEOG0125%20Week%208%20Lecture%20-%20Spatial%20Bayesian%20Risk%20Models.pdf)  [**[Datasets]**](Dataset%20for%20Week%204.zip) | Spatial Risk Models |
+|5 | [**[Lecture Notes]**](Lecture_notes/GEOG0125%20Week%209%20Lecture%20-%20Spatial%20temporal%20Models%20and%20Bayesian%20Updating.pdf) [**[Datasets]**](Dataset%20for%20Week%205.zip) | Spatiotemproal Risk Models & Bayesian Updating |
+
+**Solutions**: [**[Week 1]**](Week%201%20Solutions%20for%20Task%201%20and%202.zip) | [**[Week 2]**](Week%202%20Solutions%20for%20Tasks%201%20and%202.zip) | **[Week 3]** | **[Week 4]** | **[Week 5]**
+
+## Timetable and key locations {.unnumbered}
+
+The **Lectures** are held every week in-person on **Thursday** from 10:00am to 11:00am at the **UCL GOSICH's Wolfson Centre in Room A (Ground Floor)** [**[MAP]**](https://maps.app.goo.gl/ceHMM5BDNdWXLd7TA). The **computer practicals** will be at the **North West Wing Building in Room G07** [**[MAP]**](https://maps.app.goo.gl/ceHMM5BDNdWXLd7TA) from 11:00am to 01:00pm on **Friday**.
+
+::: {.callout-note appearance="simple" title="Important note"}
+Please bring your own laptops with you to the computer practicals on Friday.
+:::
+
+## Contact details {.unnumbered}
+
+**Dr. Anwar Musah**
+<br/>
+UCL Department of Geography 
+<br/>
+Room 115, North West Wing Building, WC1E 6BT
+<br/>
+Email: [**a.musah@ucl.ac.uk**](mailto:a.musah@ucl.ac.uk)

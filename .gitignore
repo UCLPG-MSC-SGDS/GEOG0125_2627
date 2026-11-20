@@ -1,0 +1,14 @@
+/.quarto/
+**/*.quarto_ipynb
+/docs/
+/site_libs/
+/.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+.Renviron
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log

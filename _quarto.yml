@@ -1,0 +1,38 @@
+project:
+  type: book
+  output-dir: docs
+  resources:
+    - "Dataset for Week 2.zip"
+    - "Dataset for Week 3.zip"
+    - "Dataset for Week 4.zip"
+    - "Dataset for Week 5.zip"
+    - "Lecture_notes/GEOG0125 Week 1 Lecture - Introduction to Bayesian Statistics.pdf"
+    - "Lecture_notes/GEOG0125 Week 2 Lecture - Bayesian GLMs.pdf"
+    - "Lecture_notes/GEOG0125 Week 7 Lecture - Bayesian Hierarchical Models.pdf"
+    - "Lecture_notes/GEOG0125 Week 8 Lecture - Spatial Bayesian Risk Models.pdf"
+    - "Lecture_notes/GEOG0125 Week 9 Lecture - Spatial temporal Models and Bayesian Updating.pdf"
+    - "Week 1 Solutions for Task 1 and 2.zip"
+    - "Week 2 Solutions for Tasks 1 and 2.zip"
+
+book:
+  title: "GEOG0125: Advanced Topics in Social Geographic Data Science"
+  description: "GEOG0125: Advanced Topics in Social Geographic Data Science Handbook"
+  sidebar:
+    logo: images/general/ucl_logo.png
+    logo-alt: UCL
+    logo-href: https://www.ucl.ac.uk/module-catalogue/modules/advanced-topics-in-social-and-geographic-data-science-GEOG0125
+    collapse-level: 1
+  chapters:
+    - index.qmd
+    - reading-list-for-geog0125.qmd
+    - getting-started.qmd
+    - introduction-to-bayesian-inference.qmd
+    - bayesian-generalised-linear-models-glms.qmd
+    - bayesian-hierarchical-regression-models.qmd
+    - bayesian-spatial-modelling-for-areal-data-in-stan.qmd
+    - bayesian-updating-for-spatial-temporal-problems.qmd
+
+format:
+  html:
+    toc: true
+    number-sections: true
