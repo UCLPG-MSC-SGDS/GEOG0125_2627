@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.11.9">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="GEOG0125: Advanced Topics in Social Geographic Data Science Handbook">
+
+<title>3&nbsp; Bayesian Generalised Linear Models (GLMs) – GEOG0125: Advanced Topics in Social Geographic Data Science</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./bayesian-hierarchical-regression-models.html" rel="next">
+<link href="./introduction-to-bayesian-inference.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-5cf164ab5a4e5e522293eae113f81893.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="site_libs/vembedr-0.1.5/css/vembedr.css" rel="stylesheet">
+
+
+</head>
+
+<body class="nav-sidebar floating quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" aria-label="Toolbar">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./bayesian-generalised-linear-models-glms.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Bayesian Generalised Linear Models (GLMs)</span></a></li></ol></nav>
+        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto" aria-label="Site">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="https://www.ucl.ac.uk/module-catalogue/modules/advanced-topics-in-social-and-geographic-data-science-GEOG0125" class="sidebar-logo-link">
+      <img src="./images/general/ucl_logo.png" alt="UCL" class="sidebar-logo light-content py-0 d-lg-inline d-none">
+      <img src="./images/general/ucl_logo.png" alt="UCL" class="sidebar-logo dark-content py-0 d-lg-inline d-none">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">GEOG0125: Advanced Topics in Social Geographic Data Science</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reading-list-for-geog0125.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Reading List for GEOG0125</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./getting-started.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Getting started</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./introduction-to-bayesian-inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction to Bayesian Inference</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./bayesian-generalised-linear-models-glms.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Bayesian Generalised Linear Models (GLMs)</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./bayesian-hierarchical-regression-models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Bayesian Hierarchical Regression Models</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./bayesian-spatial-modelling-for-areal-data-in-stan.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Bayesian Spatial Modelling for Areal Data in Stan</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./bayesian-updating-for-spatial-temporal-problems.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Bayesian Updating for Spatial &amp; Temporal Problems</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#lecture-recording-length-10002-minutes" id="toc-lecture-recording-length-10002-minutes" class="nav-link active" data-scroll-target="#lecture-recording-length-10002-minutes"><span class="header-section-number">3.1</span> Lecture recording (Length: 1:00:02 minutes)</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction"><span class="header-section-number">3.2</span> Introduction</a>
+  <ul class="collapse">
+  <li><a href="#demonstration-recording-length-15949" id="toc-demonstration-recording-length-15949" class="nav-link" data-scroll-target="#demonstration-recording-length-15949"><span class="header-section-number">3.2.1</span> Demonstration recording (Length: 1:59:49)</a></li>
+  <li><a href="#datasets-setting-up-the-work-directory" id="toc-datasets-setting-up-the-work-directory" class="nav-link" data-scroll-target="#datasets-setting-up-the-work-directory"><span class="header-section-number">3.2.2</span> Datasets &amp; setting up the work directory</a></li>
+  <li><a href="#loading-and-installing-packages" id="toc-loading-and-installing-packages" class="nav-link" data-scroll-target="#loading-and-installing-packages"><span class="header-section-number">3.2.3</span> Loading and installing packages</a></li>
+  </ul></li>
+  <li><a href="#poisson-regression-modelling" id="toc-poisson-regression-modelling" class="nav-link" data-scroll-target="#poisson-regression-modelling"><span class="header-section-number">3.3</span> Poisson Regression Modelling</a>
+  <ul class="collapse">
+  <li><a href="#selecting-the-appropriate-poisson-model" id="toc-selecting-the-appropriate-poisson-model" class="nav-link" data-scroll-target="#selecting-the-appropriate-poisson-model"><span class="header-section-number">3.3.1</span> Selecting the appropriate Poisson model</a></li>
+  <li><a href="#data-preparation-and-set-up-for-bayesian-analysis-in-stan" id="toc-data-preparation-and-set-up-for-bayesian-analysis-in-stan" class="nav-link" data-scroll-target="#data-preparation-and-set-up-for-bayesian-analysis-in-stan"><span class="header-section-number">3.3.2</span> Data preparation and set-up for Bayesian analysis in Stan</a></li>
+  <li><a href="#creating-a-script-to-run-a-negative-binomial-poisson-regression-in-stan" id="toc-creating-a-script-to-run-a-negative-binomial-poisson-regression-in-stan" class="nav-link" data-scroll-target="#creating-a-script-to-run-a-negative-binomial-poisson-regression-in-stan"><span class="header-section-number">3.3.3</span> Creating a script to run a Negative Binomial Poisson regression in Stan</a></li>
+  <li><a href="#compiling-our-stan-code-in-rstudio-and-results" id="toc-compiling-our-stan-code-in-rstudio-and-results" class="nav-link" data-scroll-target="#compiling-our-stan-code-in-rstudio-and-results"><span class="header-section-number">3.3.4</span> Compiling our Stan code in RStudio and Results</a></li>
+  <li><a href="#model-with-categorical-variables" id="toc-model-with-categorical-variables" class="nav-link" data-scroll-target="#model-with-categorical-variables"><span class="header-section-number">3.3.5</span> Model with categorical variables</a></li>
+  </ul></li>
+  <li><a href="#tasks" id="toc-tasks" class="nav-link" data-scroll-target="#tasks"><span class="header-section-number">3.4</span> Tasks</a>
+  <ul class="collapse">
+  <li><a href="#task-1---obesity-and-fastfoods-in-london" id="toc-task-1---obesity-and-fastfoods-in-london" class="nav-link" data-scroll-target="#task-1---obesity-and-fastfoods-in-london"><span class="header-section-number">3.4.1</span> Task 1 - Obesity and Fastfoods in London</a></li>
+  <li><a href="#task-2---factors-affecting-house-prices-in-london-2015" id="toc-task-2---factors-affecting-house-prices-in-london-2015" class="nav-link" data-scroll-target="#task-2---factors-affecting-house-prices-in-london-2015"><span class="header-section-number">3.4.2</span> Task 2 - Factors affecting house prices in London (2015)</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content" tabindex="-1">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Bayesian Generalised Linear Models (GLMs)</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="lecture-recording-length-10002-minutes" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="lecture-recording-length-10002-minutes"><span class="header-section-number">3.1</span> Lecture recording (Length: 1:00:02 minutes)</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div class="vembedr" align="center">
+<div>
+<iframe src="https://www.youtube.com/embed/_U-FfIPowhE" width="711" height="400" frameborder="0" allowfullscreen="" data-external="1"></iframe>
+</div>
+</div>
+</div>
+</div>
+<p><a href="https://youtu.be/_U-FfIPowhE">[<strong>Watch on YouTube</strong>]</a></p>
+</section>
+<section id="introduction" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="introduction"><span class="header-section-number">3.2</span> Introduction</h2>
+<p>This week we will learn how to perform Generalised Linear Regression Model (GLMs) within a <strong>Bayesian</strong> framework. We will use quantitative data focused on crime victimisation in Nigeria to examine how street accessibility measures such as distance, connectivity, choice and integration are associated with reported counts residential burglaries at a street level. The focus will be on <strong>Poisson-based regression models</strong> with both continuous and categorical independent variables.</p>
+<p>Let us begin.</p>
+<section id="demonstration-recording-length-15949" class="level3" data-number="3.2.1">
+<h3 data-number="3.2.1" class="anchored" data-anchor-id="demonstration-recording-length-15949"><span class="header-section-number">3.2.1</span> Demonstration recording (Length: 1:59:49)</h3>
+<div class="cell">
+<div class="cell-output-display">
+<div class="vembedr" align="center">
+<div>
+<iframe src="https://www.youtube.com/embed/eD0th0_UihQ" width="711" height="400" frameborder="0" allowfullscreen="" data-external="1"></iframe>
+</div>
+</div>
+</div>
+</div>
+<p><a href="https://youtu.be/eD0th0_UihQ">[<strong>Watch on YouTube</strong>]</a></p>
+</section>
+<section id="datasets-setting-up-the-work-directory" class="level3" data-number="3.2.2">
+<h3 data-number="3.2.2" class="anchored" data-anchor-id="datasets-setting-up-the-work-directory"><span class="header-section-number">3.2.2</span> Datasets &amp; setting up the work directory</h3>
+<p>Go to your folder <strong>GEOG0125</strong> and create a sub folder called “<strong>Week 2</strong>” within the <strong>GEOG0125</strong> folder. Here, we will store all our R &amp; Stan scripts as well as datasets. Set your work directory to <strong>Week 2’s</strong> folder.</p>
+<p>For Windows, the code for setting the work directory will be:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">"C:/Users/AccountName/Desktop/GEOG0125/Week 2"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>For MAC, the code for setting the work directory will be:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">"/Users/AccountName/Desktop/GEOG0125/Week 2"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The dataset for this practical:</p>
+<ul>
+<li><code>Street Burglary Data in Nigeria.csv</code></li>
+</ul>
+<p>The datasets for the task at the end of the practical:</p>
+<ul>
+<li><code>Obesity and Fastfoods in MSOAs data.csv</code></li>
+<li><code>London LSOA 2015 data.csv</code></li>
+</ul>
+</section>
+<section id="loading-and-installing-packages" class="level3" data-number="3.2.3">
+<h3 data-number="3.2.3" class="anchored" data-anchor-id="loading-and-installing-packages"><span class="header-section-number">3.2.3</span> Loading and installing packages</h3>
+<p>We will need to load the following packages for this practical:</p>
+<ul>
+<li><code>rstan</code>: a package that enables <code>R</code> to interface with <code>Stan</code>. It provides R the functions to code, parse, compile, test, estimate, and analyze Bayesian models through <code>Stan</code> in R.</li>
+<li><code>loo</code>: this package allows the user to perform model validation and comparison.</li>
+<li><code>MASS</code>: Gives us access to <code>glm.nb()</code> to estimate the dispersion parameter for use in Bayesian model</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the packages with library()</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">'rstan'</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"loo"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"MASS"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Note that when you load <code>rstan</code> from cran you will see some recommendations on using multiple cores for speeding the process. For the best experience, we highly recommend using this code:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">mc.cores =</span> parallel<span class="sc">::</span><span class="fu">detectCores</span>())</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rstan_options</span>(<span class="at">auto_write =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>This tells RStudio to use multiple core for parallel process whenever Stan is being implemented. Every time you want to use Stan - make sure to load <code>parallel::detectCores()</code> and <code>rstan_options</code> code.</p>
+</section>
+</section>
+<section id="poisson-regression-modelling" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="poisson-regression-modelling"><span class="header-section-number">3.3</span> Poisson Regression Modelling</h2>
+<p>We are going to fit a Poisson-type model on some an outcome that contain counts of households reporting to have been victims of burglary. Let us load the data into RStudio can call the object <code>burglaryDataset</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set your own directory using setwd() function</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data into RStudio using read.csv(). The spreadsheet is stored in the object called 'burglaryData'</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>burglaryDataset <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"Street Burglary Data in Nigeria.csv"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(burglaryDataset)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="selecting-the-appropriate-poisson-model" class="level3" data-number="3.3.1">
+<h3 data-number="3.3.1" class="anchored" data-anchor-id="selecting-the-appropriate-poisson-model"><span class="header-section-number">3.3.1</span> Selecting the appropriate Poisson model</h3>
+<p>There are three different types of Poisson models:</p>
+<ul>
+<li>Standard Poisson regression</li>
+<li>Negative Binomial Poisson regression</li>
+<li>Zero-Inflated Poisson regression</li>
+</ul>
+<p>The implementation of one of these models are highly dependent on how the frequency distribution of the count response variable are displayed. If it resembles a normal curve - then use the standard version. Otherwise, use the <strong>Negative Binomial Poisson regression</strong> if there is any evidence of over-dispersion. When there is a an inflation of zero counts in the dataset, you will have to use the <strong>Zero-Inflated Poisson model</strong> to account for that problem.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/general/Plot_test_poisson.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Let’s check the frequency distribution of the outcome variable <code>burglary</code> which corresponds to the number of reported instances a property on a street was burgled. You can simply use a histogram to examine its distribution:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># see lowest count</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">min</span>(burglaryDataset<span class="sc">$</span>burglary)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># see highest count </span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">max</span>(burglaryDataset<span class="sc">$</span>burglary)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># visual distribution</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(burglaryDataset<span class="sc">$</span>burglary, <span class="at">breaks=</span><span class="dv">20</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">25</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">600</span>),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">xlab =</span> <span class="st">"Report number of burglaries on a street segment"</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">ylab =</span> <span class="st">"Frequency"</span>,</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">main =</span> <span class="st">"Distribution of Burglary counts"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/general/Burglary_counts.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The plot show evidence of over-dispersion. It indicates that streets in Kaduna have less frequency of burglaries. Here, we consider using a <strong>Negative Binomial Poisson regression model</strong> over the standard and zero-inflated versions (i.e., scenario 1 and 3).</p>
+<p>Now, that we know the model type, let us estimate the over-dispersion parameter using the <code>glm.nb()</code> function.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit negative binomial regression null model</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>nb_model <span class="ot">&lt;-</span> <span class="fu">glm.nb</span>(burglary <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> burglaryDataset)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract theta</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>theta <span class="ot">&lt;-</span> nb_model<span class="sc">$</span>theta</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>theta</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>[<span class="dv">1</span>] <span class="fl">0.3161472</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The estimated over-dispersion parameter is 0.3161472, which is small, this suggests that residential burglaries exhibits substantial over-dispersion. We will use this value in our Bayesian model when we code it in Stan.</p>
+</section>
+<section id="data-preparation-and-set-up-for-bayesian-analysis-in-stan" class="level3" data-number="3.3.2">
+<h3 data-number="3.3.2" class="anchored" data-anchor-id="data-preparation-and-set-up-for-bayesian-analysis-in-stan"><span class="header-section-number">3.3.2</span> Data preparation and set-up for Bayesian analysis in Stan</h3>
+<p>Let begin with a model that only contains independent variables that are continuous measures i.e., distance and connectivity. We can prepare the dataset into <code>list()</code> object:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>stan_dataset_model1 <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">N =</span> <span class="fu">nrow</span>(burglaryDataset),</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">burg =</span> burglaryDataset<span class="sc">$</span>burglary, </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">dist =</span> burglaryDataset<span class="sc">$</span>distance,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">conn =</span> burglaryDataset<span class="sc">$</span>connectivity,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_households =</span> <span class="fu">log</span>(burglaryDataset<span class="sc">$</span>totalhouses),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">phi =</span> <span class="fl">0.31614</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="note">
+<p><strong>Important Notes:</strong> The list object <code>stan_dataset_model1</code> from RStudio is passed into the Stan.</p>
+<ul>
+<li><code>N = nrow(burglaryDataset)</code> we are extracting the number of observations present in the dataset. Note that this a smart way instead of hard coding the number. Note that here, <code>N</code> is <code>743</code>, meaning there 743 street segments.</li>
+<li><code>burg = burglaryDataset$burglary</code>: Here, we defined the outcome variable (i.e., counts of burglaries) as <code>burg</code>.</li>
+<li><code>dist = burglaryDataset$distance</code>: Independent variable for distance.</li>
+<li><code>conn = burglaryDataset$connectivity</code>: Independent variable for connectivity.</li>
+<li><code>log_households = log(burglaryDataset$totalhouses)</code>: Here, the <code>log_households</code> is calculated from taking the log-transform of the <code>totalhouses</code>, which is the denominators used for expressing the residential burglaries as a crime rate per capita.</li>
+<li><code>phi = 0.31614</code>: We specify the over-dispersion parameter as calculated from <code>glm.nb()</code>.</li>
+</ul>
+</div>
+<p>Let’s create our <strong>Stan script</strong> for running a <strong>Negative Binomial Poisson regression</strong> within a Bayesian framework.</p>
+</section>
+<section id="creating-a-script-to-run-a-negative-binomial-poisson-regression-in-stan" class="level3" data-number="3.3.3">
+<h3 data-number="3.3.3" class="anchored" data-anchor-id="creating-a-script-to-run-a-negative-binomial-poisson-regression-in-stan"><span class="header-section-number">3.3.3</span> Creating a script to run a Negative Binomial Poisson regression in Stan</h3>
+<p>A typical <strong>Stan</strong> program for a regression consist of the following 5 <strong>blocks</strong>:</p>
+<ol type="1">
+<li>Data</li>
+<li>Parameters</li>
+<li>Model</li>
+<li>Generated quantities</li>
+</ol>
+<p>The <code>Data</code>, <code>Parameters</code> and <code>Model</code> block <strong>must</strong> be specified for the regression to work. But there will be additional block that we will need to transform the resultant parameters (i.e., coefficients) into relative risk (RR) inside the <code>Generated quantities</code> block.</p>
+<p>Let’s start with the <code>data</code> block:</p>
+<p><strong>FIRST STEP:</strong> We specify the total number of observations <code>N</code> as an <code>integer</code>, as well as the information we defined in our list object <code>stan_dataset_model1</code> to be passed to Stan. This information is specified in the <code>data</code> block:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>data {</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span><span class="sc">&gt;</span> N;                    <span class="sc">/</span><span class="er">/</span> declare the overall number of data points to be passed into model</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    array[N] int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span><span class="sc">&gt;</span> burg;              <span class="sc">/</span><span class="er">/</span> define as an array and specify it as an integer <span class="cf">for</span> counts</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    vector[N] dist;                    <span class="sc">/</span><span class="er">/</span> continuous variable</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    vector[N] conn;                    <span class="sc">/</span><span class="er">/</span> continuous variable</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    vector[N] log_households;                  <span class="sc">/</span><span class="er">/</span> offset variable <span class="cf">for</span> the <span class="fu">denominators</span> (total households on a stree segment)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    real<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span><span class="sc">&gt;</span> phi;                 <span class="sc">/</span><span class="er">/</span> fixed value to account <span class="cf">for</span> overdispersion <span class="cf">in</span> the crime counts</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>SECOND STEP:</strong> For the <code>parameters</code> block, here we will need to specify the name of the regression intercept <code>alpha</code>, which is baseline risk of residential burglaries, and the two coefficients i.e., <code>beta[1]</code> and <code>beta[2]</code> for our two independent variables <code>dist</code> and <code>conn</code> respectively.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>data {</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span><span class="sc">&gt;</span> N;                    <span class="sc">/</span><span class="er">/</span> declare the overall number of data points to be passed into model</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    array[N] int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span><span class="sc">&gt;</span> burg;              <span class="sc">/</span><span class="er">/</span> define as an array and specify it as an integer <span class="cf">for</span> counts</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    vector[N] dist;                    <span class="sc">/</span><span class="er">/</span> continuous variable</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    vector[N] conn;                    <span class="sc">/</span><span class="er">/</span> continuous variable</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    vector[N] log_households;                  <span class="sc">/</span><span class="er">/</span> offset variable <span class="cf">for</span> the <span class="fu">denominators</span> (total households on a stree segment)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    real<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span><span class="sc">&gt;</span> phi;                 <span class="sc">/</span><span class="er">/</span> fixed value to account <span class="cf">for</span> overdispersion <span class="cf">in</span> the crime counts</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>parameters {</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    real alpha;</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    vector[<span class="dv">2</span>] beta;</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>THIRD STEP:</strong> We build our likelihood function and specify the priors for each parameter under the <code>model</code> block. For all parameters - the priors have been centred around 0, meaning that broadly, these variables have no effect on residential burglaries, and if any, these effects may range from ±1 (so in risk terms 0.36 to 2.71). The regression model is <code>neg_binomial_2_log(formula, Overdispersion)</code>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>data {</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span><span class="sc">&gt;</span> N;                    <span class="sc">/</span><span class="er">/</span> declare the overall number of data points to be passed into model</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    array[N] int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span><span class="sc">&gt;</span> burg;              <span class="sc">/</span><span class="er">/</span> define as an array and specify it as an integer <span class="cf">for</span> counts</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    vector[N] dist;                    <span class="sc">/</span><span class="er">/</span> continuous variable</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    vector[N] conn;                    <span class="sc">/</span><span class="er">/</span> continuous variable</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    vector[N] log_households;                  <span class="sc">/</span><span class="er">/</span> offset variable <span class="cf">for</span> the <span class="fu">denominators</span> (total households on a stree segment)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    real<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span><span class="sc">&gt;</span> phi;                 <span class="sc">/</span><span class="er">/</span> fixed value to account <span class="cf">for</span> overdispersion <span class="cf">in</span> the crime counts</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>parameters {</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    real alpha;</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    vector[<span class="dv">2</span>] beta;</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>model {</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    <span class="sc">/</span><span class="er">/</span> prior specification <span class="cf">for</span> our parameters</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    alpha <span class="sc">~</span> <span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>);               </span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    beta[<span class="dv">1</span>] <span class="sc">~</span> <span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>);</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    beta[<span class="dv">2</span>] <span class="sc">~</span> <span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>);</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    <span class="sc">/</span><span class="er">/</span> likelihood <span class="cf">function</span> i.e., statistical model</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>N) {</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>        burg[i] <span class="sc">~</span> <span class="fu">neg_binomial_2_log</span>(alpha <span class="sc">+</span> beta[<span class="dv">1</span>]<span class="sc">*</span>dist[i] <span class="sc">+</span> beta[<span class="dv">2</span>]<span class="sc">*</span>conn[i] <span class="sc">+</span> log_households[i], phi);</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>LAST STEP:</strong> We instruct Stan to <code>generated quantitites</code> to calculate the <strong>relative risk ratio (RRs)</strong> by converting the estimated coefficients by using <code>exp()</code>. We ask it to calculate the log likelihood for model validation:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>data {</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span><span class="sc">&gt;</span> N;                    <span class="sc">/</span><span class="er">/</span> declare the overall number of data points to be passed into model</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    array[N] int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span><span class="sc">&gt;</span> burg;              <span class="sc">/</span><span class="er">/</span> define as an array and specify it as an integer <span class="cf">for</span> counts</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    vector[N] dist;                    <span class="sc">/</span><span class="er">/</span> continuous variable</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    vector[N] conn;                    <span class="sc">/</span><span class="er">/</span> continuous variable</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    vector[N] log_households;                  <span class="sc">/</span><span class="er">/</span> offset variable <span class="cf">for</span> the <span class="fu">denominators</span> (total households on a stree segment)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    real<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span><span class="sc">&gt;</span> phi;                 <span class="sc">/</span><span class="er">/</span> fixed value to account <span class="cf">for</span> overdispersion <span class="cf">in</span> the crime counts</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>parameters {</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    real alpha;</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    vector[<span class="dv">2</span>] beta;</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>model {</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="sc">/</span><span class="er">/</span> prior specification <span class="cf">for</span> our parameters</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    alpha <span class="sc">~</span> <span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>);               </span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    beta[<span class="dv">1</span>] <span class="sc">~</span> <span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>);</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    beta[<span class="dv">2</span>] <span class="sc">~</span> <span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>);</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    <span class="sc">/</span><span class="er">/</span> likelihood <span class="cf">function</span> i.e., statistical model</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>N) {</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>        burg[i] <span class="sc">~</span> <span class="fu">neg_binomial_2_log</span>(alpha <span class="sc">+</span> beta[<span class="dv">1</span>]<span class="sc">*</span>dist[i] <span class="sc">+</span> beta[<span class="dv">2</span>]<span class="sc">*</span>conn[i] <span class="sc">+</span> log_households[i], phi);</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>generated quantities {</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    <span class="sc">/</span><span class="er">/</span> report crime risk ratios</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    real baselineCrimeRR;</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>    vector[<span class="dv">2</span>] CrimeRR;</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>    baselineCrimeRR <span class="ot">=</span> <span class="fu">exp</span>(alpha);</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>    CrimeRR <span class="ot">=</span> <span class="fu">exp</span>(beta);</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>    <span class="sc">/</span><span class="er">/</span> model validation and comparison</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>    vector[N] log_lik;                 </span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>N) {</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>        log_lik[i] <span class="ot">=</span> <span class="fu">neg_binomial_2_log_lpmf</span>(burg[i] <span class="sc">|</span> alpha <span class="sc">+</span> beta[<span class="dv">1</span>]<span class="sc">*</span>dist[i] <span class="sc">+</span> beta[<span class="dv">2</span>]<span class="sc">*</span>conn[i] <span class="sc">+</span> log_households[i], phi);</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="compiling-our-stan-code-in-rstudio-and-results" class="level3" data-number="3.3.4">
+<h3 data-number="3.3.4" class="anchored" data-anchor-id="compiling-our-stan-code-in-rstudio-and-results"><span class="header-section-number">3.3.4</span> Compiling our Stan code in RStudio and Results</h3>
+<p>Now, let us turn our attention to RStudio. Using the <code>stan()</code> to compile and obtain the posterior estimation of the overall risk and crime risk ratios (CRR) for the each independent variable:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># the directory needs to be set to where you saved the dataset and Stan script</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>crr.negbin.model1 <span class="ot">=</span> <span class="fu">stan</span>(<span class="st">"Week_2_Cont_Model.stan"</span>, <span class="at">data=</span>stan_dataset_model1, <span class="at">iter=</span><span class="dv">3000</span>, <span class="at">chains=</span><span class="dv">6</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We can print the results accordingly:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># reports all results</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(crr.negbin.model1, <span class="at">pars =</span> <span class="fu">c</span>(<span class="st">"alpha"</span>, <span class="st">"beta"</span>, <span class="st">"baselineCrimeRR"</span>, <span class="st">"CrimeRR"</span>), <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Output summary table</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>Inference <span class="cf">for</span> Stan model<span class="sc">:</span> anon_model.</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="dv">6</span> chains, each with iter<span class="ot">=</span><span class="dv">3000</span>; warmup<span class="ot">=</span><span class="dv">1500</span>; thin<span class="ot">=</span><span class="dv">1</span>; </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>post<span class="sc">-</span>warmup draws per chain<span class="ot">=</span><span class="dv">1500</span>, total post<span class="sc">-</span>warmup draws<span class="ot">=</span><span class="fl">9000.</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                 mean se_mean   sd  <span class="fl">2.5</span><span class="sc">% 97.5%</span> n_eff Rhat</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>alpha           <span class="sc">-</span><span class="fl">2.16</span>       <span class="dv">0</span> <span class="fl">0.13</span> <span class="sc">-</span><span class="fl">2.42</span> <span class="sc">-</span><span class="fl">1.91</span>  <span class="dv">3282</span>    <span class="dv">1</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>beta[<span class="dv">1</span>]          <span class="fl">0.00</span>       <span class="dv">0</span> <span class="fl">0.00</span>  <span class="fl">0.00</span>  <span class="fl">0.00</span>  <span class="dv">4237</span>    <span class="dv">1</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>beta[<span class="dv">2</span>]          <span class="fl">0.06</span>       <span class="dv">0</span> <span class="fl">0.02</span>  <span class="fl">0.02</span>  <span class="fl">0.11</span>  <span class="dv">3216</span>    <span class="dv">1</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>baselineCrimeRR  <span class="fl">0.12</span>       <span class="dv">0</span> <span class="fl">0.02</span>  <span class="fl">0.09</span>  <span class="fl">0.15</span>  <span class="dv">3225</span>    <span class="dv">1</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>CrimeRR[<span class="dv">1</span>]       <span class="fl">1.00</span>       <span class="dv">0</span> <span class="fl">0.00</span>  <span class="fl">1.00</span>  <span class="fl">1.00</span>  <span class="dv">4236</span>    <span class="dv">1</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>CrimeRR[<span class="dv">2</span>]       <span class="fl">1.07</span>       <span class="dv">0</span> <span class="fl">0.02</span>  <span class="fl">1.02</span>  <span class="fl">1.11</span>  <span class="dv">3215</span>    <span class="dv">1</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>Samples were drawn using <span class="fu">NUTS</span>(diag_e) at Fri Jan <span class="dv">24</span> <span class="dv">02</span><span class="sc">:</span><span class="dv">30</span><span class="sc">:</span><span class="dv">42</span> <span class="fl">2025.</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>For each parameter, n_eff is a crude measure of effective sample size,</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>and Rhat is the potential scale reduction factor on split <span class="fu">chains</span> (at </span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>convergence, <span class="at">Rhat=</span><span class="dv">1</span>).</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Here is the messing part - <strong>interpretation</strong>. Before anything, note that <code>alpha</code>, <code>beta[1]</code> and <code>beta[2]</code> corresponds to the intercept, and coefficients for distance and connectivity, respectively. These are on the log-scale!</p>
+<p>The risk ratios from <code>alpha</code>, <code>beta[1]</code> and <code>beta[2]</code> which, in turn, corresponds to the intercept, and coefficients for distance and connectivity, respectively, are the <code>baselineCrimeRR</code>, <code>CrimeRR[1]</code> and <code>CrimeRR[2]</code>. For instance, the significant result is for connectivity, which shows for every unit increase in the number to street connections on a segment in the network, the risk of residential burglaries increase by 1.07 (7%), which is significant based on its 95% Credibility Interval (95 CrI: 1.02-1.11).</p>
+<p>We can compute exceedance probabilities i.e., that such risk concerning connectivity are greater than 1 (meaning there’s an excess risk):</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Here, we can extract the simulated sample for CrimeRR[2]</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>conn_draws <span class="ot">&lt;-</span> <span class="fu">extract</span>(crr.negbin.model1, <span class="st">'CrimeRR[2]'</span>)[[<span class="dv">1</span>]]</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(conn_draws <span class="sc">&gt;</span> <span class="fl">1.00</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>[<span class="dv">1</span>] <span class="fl">0.9977778</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>This indicates a strong chance (99.7%) that streets with more connections to other street segments in the network will certainly increase the risk of residential burglaries.</p>
+<p>Lastly, we will assess the validity of our model using a test called <strong>Leave-One-Out Cross-Validation</strong>. The estimate from this test <strong>Expected Log Predictive Density (ELPD)</strong> quantifies how well a model performs and so higher values of <strong>ELPD</strong> indicates better predictive performance. While, it can be interpreted on its own, its primary value lies in model comparison rather than as an absolute measure.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extracting ELPD leave-one-out results from model with continuous variables only</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>log_lik_with_cont <span class="ot">&lt;-</span> <span class="fu">extract_log_lik</span>(crr.negbin.model1, <span class="at">merge_chains =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>r_eff_with_cont <span class="ot">&lt;-</span> <span class="fu">relative_eff</span>(log_lik_with_cont)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>loo_cont <span class="ot">&lt;-</span> <span class="fu">loo</span>(log_lik_with_cont, r_eff_with_cont, <span class="at">cores =</span> <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(loo_cont)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>Computed from <span class="dv">9000</span> by <span class="dv">743</span> log<span class="sc">-</span>likelihood matrix.</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>         Estimate   SE</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>elpd_loo  <span class="sc">-</span><span class="fl">1022.1</span> <span class="fl">37.7</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>p_loo         <span class="fl">2.6</span>  <span class="fl">0.4</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>looic      <span class="fl">2044.3</span> <span class="fl">75.3</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="sc">------</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>MCSE of elpd_loo is <span class="dv">0</span>.<span class="fl">0.</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>MCSE and ESS estimates assume independent <span class="fu">draws</span> (<span class="at">r_eff=</span><span class="dv">1</span>).</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>All Pareto k estimates are <span class="fu">good</span> (k <span class="sc">&lt;</span> <span class="fl">0.7</span>).</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>See <span class="fu">help</span>(<span class="st">'pareto-k-diagnostic'</span>) <span class="cf">for</span> details.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We take note that the ELPD is <code>-1022.1</code></p>
+</section>
+<section id="model-with-categorical-variables" class="level3" data-number="3.3.5">
+<h3 data-number="3.3.5" class="anchored" data-anchor-id="model-with-categorical-variables"><span class="header-section-number">3.3.5</span> Model with categorical variables</h3>
+<p>The purpose of this section is to show:</p>
+<ul>
+<li>How to include categorical variables into the model</li>
+<li>Perform model comparisons</li>
+</ul>
+<p>Let’s include the following categorical variables: <code>integq</code> and <code>choiceq</code> into the regression. Each variable has four categories, we want to omit the first category as it represents the lowest exposure group, and use it a reference for the higher categories when we estimate their risk.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># See table for categorical variables</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(burglaryDataset<span class="sc">$</span>choiceq)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(burglaryDataset<span class="sc">$</span>integq)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create dummy variables for choice</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>burglaryDataset<span class="sc">$</span>choicecat2 <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(burglaryDataset<span class="sc">$</span>choiceq <span class="sc">==</span> <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>burglaryDataset<span class="sc">$</span>choicecat3 <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(burglaryDataset<span class="sc">$</span>choiceq <span class="sc">==</span> <span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>burglaryDataset<span class="sc">$</span>choicecat4 <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(burglaryDataset<span class="sc">$</span>choiceq <span class="sc">==</span> <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Create dummy variables for integration</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>burglaryDataset<span class="sc">$</span>integ2 <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(burglaryDataset<span class="sc">$</span>integq <span class="sc">==</span> <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>burglaryDataset<span class="sc">$</span>integ3 <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(burglaryDataset<span class="sc">$</span>integq <span class="sc">==</span> <span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>burglaryDataset<span class="sc">$</span>integ4 <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(burglaryDataset<span class="sc">$</span>integq <span class="sc">==</span> <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Let expand the model to include independent variables that are both continuous and categorical measures i.e., distance and connectivity, choice and integration, and the new information into a <code>list()</code> object:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>stan_dataset_model2 <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">N =</span> <span class="fu">nrow</span>(burglaryDataset),</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">burg =</span> burglaryDataset<span class="sc">$</span>burglary, </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">dist =</span> burglaryDataset<span class="sc">$</span>distance,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">conn =</span> burglaryDataset<span class="sc">$</span>connectivity,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">chcat2 =</span> burglaryDataset<span class="sc">$</span>choicecat2,</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">chcat3 =</span> burglaryDataset<span class="sc">$</span>choicecat3,</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">chcat4 =</span> burglaryDataset<span class="sc">$</span>choicecat4,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">intcat2 =</span> burglaryDataset<span class="sc">$</span>integ2,</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">intcat3 =</span> burglaryDataset<span class="sc">$</span>integ3,</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">intcat4 =</span> burglaryDataset<span class="sc">$</span>integ4,</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_households =</span> <span class="fu">log</span>(burglaryDataset<span class="sc">$</span>totalhouses),</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">phi =</span> <span class="fl">0.31614</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The amended Stan code will look something as follows:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>data {</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span><span class="sc">&gt;</span> N;                    <span class="sc">/</span><span class="er">/</span> declare the overall number of data points to be passed into model</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    array[N] int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span><span class="sc">&gt;</span> burg;              <span class="sc">/</span><span class="er">/</span> define as an array and specify it as an integer <span class="cf">for</span> counts</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    vector[N] dist;                    <span class="sc">/</span><span class="er">/</span> continuous variable</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    vector[N] conn;                    <span class="sc">/</span><span class="er">/</span> continuous variable</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    array[N] int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span>, upper<span class="ot">=</span><span class="dv">1</span><span class="sc">&gt;</span> chcat2;</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    array[N] int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span>, upper<span class="ot">=</span><span class="dv">1</span><span class="sc">&gt;</span> chcat3;</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    array[N] int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span>, upper<span class="ot">=</span><span class="dv">1</span><span class="sc">&gt;</span> chcat4;</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    array[N] int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span>, upper<span class="ot">=</span><span class="dv">1</span><span class="sc">&gt;</span> intcat2;</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    array[N] int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span>, upper<span class="ot">=</span><span class="dv">1</span><span class="sc">&gt;</span> intcat3;</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    array[N] int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span>, upper<span class="ot">=</span><span class="dv">1</span><span class="sc">&gt;</span> intcat4;</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    vector[N] log_households;                  <span class="sc">/</span><span class="er">/</span> offset variable <span class="cf">for</span> the <span class="fu">denominators</span> (total households on a stree segment)</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    real<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span><span class="sc">&gt;</span> phi;                 <span class="sc">/</span><span class="er">/</span> fixed value to account <span class="cf">for</span> overdispersion <span class="cf">in</span> the crime counts</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>parameters {</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    real alpha;</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    vector[<span class="dv">2</span>] beta;</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>    vector[<span class="dv">3</span>] chcq;</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>    vector[<span class="dv">3</span>] intq;</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>model {</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>    <span class="sc">/</span><span class="er">/</span> prior specification <span class="cf">for</span> our parameters</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>    alpha <span class="sc">~</span> <span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>);               </span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>    beta <span class="sc">~</span> <span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>);</span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>    chcq  <span class="sc">~</span> <span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>);</span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>    intq  <span class="sc">~</span> <span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>);</span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>    <span class="sc">/</span><span class="er">/</span> likelihood <span class="cf">function</span> i.e., statistical model</span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>N) {</span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>        burg[i] <span class="sc">~</span> <span class="fu">neg_binomial_2_log</span>(alpha <span class="sc">+</span> beta[<span class="dv">1</span>]<span class="sc">*</span>dist[i] <span class="sc">+</span> beta[<span class="dv">2</span>]<span class="sc">*</span>conn[i] <span class="sc">+</span> chcq[<span class="dv">1</span>]<span class="sc">*</span>chcat2[i] <span class="sc">+</span> chcq[<span class="dv">2</span>]<span class="sc">*</span>chcat3[i] <span class="sc">+</span> chcq[<span class="dv">3</span>]<span class="sc">*</span>chcat4[i] <span class="sc">+</span> intq[<span class="dv">1</span>]<span class="sc">*</span>intcat2[i] <span class="sc">+</span> intq[<span class="dv">2</span>]<span class="sc">*</span>intcat3[i] <span class="sc">+</span> intq[<span class="dv">3</span>]<span class="sc">*</span>intcat4[i] <span class="sc">+</span> log_households[i], phi);</span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>generated quantities {</span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>    <span class="sc">/</span><span class="er">/</span> report crime risk ratios</span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>    real baselineCrimeRR;</span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>    vector[<span class="dv">2</span>] betaRR;</span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>    vector[<span class="dv">3</span>] chcqRR;</span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a>    vector[<span class="dv">3</span>] intqRR;</span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a>    baselineCrimeRR <span class="ot">=</span> <span class="fu">exp</span>(alpha);</span>
+<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a>    betaRR <span class="ot">=</span> <span class="fu">exp</span>(beta);</span>
+<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a>    chcqRR <span class="ot">=</span> <span class="fu">exp</span>(chcq);</span>
+<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a>    intqRR <span class="ot">=</span> <span class="fu">exp</span>(intq);</span>
+<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a>    <span class="sc">/</span><span class="er">/</span> model validation and comparison</span>
+<span id="cb21-48"><a href="#cb21-48" aria-hidden="true" tabindex="-1"></a>    vector[N] log_lik;                 </span>
+<span id="cb21-49"><a href="#cb21-49" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>N) {</span>
+<span id="cb21-50"><a href="#cb21-50" aria-hidden="true" tabindex="-1"></a>        log_lik[i] <span class="ot">=</span> <span class="fu">neg_binomial_2_log_lpmf</span>(burg[i] <span class="sc">|</span> alpha <span class="sc">+</span> beta[<span class="dv">1</span>]<span class="sc">*</span>dist[i] <span class="sc">+</span> beta[<span class="dv">2</span>]<span class="sc">*</span>conn[i] <span class="sc">+</span> chcq[<span class="dv">1</span>]<span class="sc">*</span>chcat2[i] <span class="sc">+</span> chcq[<span class="dv">2</span>]<span class="sc">*</span>chcat3[i] <span class="sc">+</span> chcq[<span class="dv">3</span>]<span class="sc">*</span>chcat4[i] <span class="sc">+</span> intq[<span class="dv">1</span>]<span class="sc">*</span>intcat2[i] <span class="sc">+</span> intq[<span class="dv">2</span>]<span class="sc">*</span>intcat3[i] <span class="sc">+</span> intq[<span class="dv">3</span>]<span class="sc">*</span>intcat4[i] <span class="sc">+</span> log_households[i], phi);</span>
+<span id="cb21-51"><a href="#cb21-51" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb21-52"><a href="#cb21-52" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We can use the <code>stan()</code> to compile the updated code to obtain the posterior estimation accordingly:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># the directory needs to be set to where you saved the dataset and Stan script</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>crr.negbin.model2 <span class="ot">=</span> <span class="fu">stan</span>(<span class="st">"Week_2_Cat_Model.stan"</span>, <span class="at">data=</span>stan_dataset_model2, <span class="at">iter=</span><span class="dv">3000</span>, <span class="at">chains=</span><span class="dv">6</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We can print the results accordingly:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># reports all results</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(crr.negbin.model2, <span class="at">pars =</span> <span class="fu">c</span>(<span class="st">"baselineCrimeRR"</span>, <span class="st">"betaRR"</span>, <span class="st">"chcqRR"</span>, <span class="st">"intqRR"</span>), <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Output summary table</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>Inference <span class="cf">for</span> Stan model<span class="sc">:</span> anon_model.</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="dv">6</span> chains, each with iter<span class="ot">=</span><span class="dv">3000</span>; warmup<span class="ot">=</span><span class="dv">1500</span>; thin<span class="ot">=</span><span class="dv">1</span>; </span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>post<span class="sc">-</span>warmup draws per chain<span class="ot">=</span><span class="dv">1500</span>, total post<span class="sc">-</span>warmup draws<span class="ot">=</span><span class="fl">9000.</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>                mean se_mean   sd <span class="fl">2.5</span><span class="sc">% 97.5%</span> n_eff Rhat</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>baselineCrimeRR <span class="fl">0.13</span>       <span class="dv">0</span> <span class="fl">0.03</span> <span class="fl">0.09</span>  <span class="fl">0.20</span>  <span class="dv">4190</span>    <span class="dv">1</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>betaRR[<span class="dv">1</span>]       <span class="fl">1.00</span>       <span class="dv">0</span> <span class="fl">0.00</span> <span class="fl">1.00</span>  <span class="fl">1.00</span> <span class="dv">11128</span>    <span class="dv">1</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>betaRR[<span class="dv">2</span>]       <span class="fl">1.08</span>       <span class="dv">0</span> <span class="fl">0.03</span> <span class="fl">1.03</span>  <span class="fl">1.14</span>  <span class="dv">5524</span>    <span class="dv">1</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>chcqRR[<span class="dv">1</span>]       <span class="fl">0.95</span>       <span class="dv">0</span> <span class="fl">0.21</span> <span class="fl">0.60</span>  <span class="fl">1.44</span>  <span class="dv">4692</span>    <span class="dv">1</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>chcqRR[<span class="dv">2</span>]       <span class="fl">0.94</span>       <span class="dv">0</span> <span class="fl">0.23</span> <span class="fl">0.57</span>  <span class="fl">1.46</span>  <span class="dv">4593</span>    <span class="dv">1</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>chcqRR[<span class="dv">3</span>]       <span class="fl">0.86</span>       <span class="dv">0</span> <span class="fl">0.29</span> <span class="fl">0.44</span>  <span class="fl">1.55</span>  <span class="dv">4266</span>    <span class="dv">1</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>intqRR[<span class="dv">1</span>]       <span class="fl">0.94</span>       <span class="dv">0</span> <span class="fl">0.20</span> <span class="fl">0.61</span>  <span class="fl">1.39</span>  <span class="dv">5311</span>    <span class="dv">1</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>intqRR[<span class="dv">2</span>]       <span class="fl">0.84</span>       <span class="dv">0</span> <span class="fl">0.18</span> <span class="fl">0.54</span>  <span class="fl">1.25</span>  <span class="dv">5119</span>    <span class="dv">1</span></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>intqRR[<span class="dv">3</span>]       <span class="fl">0.81</span>       <span class="dv">0</span> <span class="fl">0.19</span> <span class="fl">0.49</span>  <span class="fl">1.24</span>  <span class="dv">5302</span>    <span class="dv">1</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>Samples were drawn using <span class="fu">NUTS</span>(diag_e) at Fri Jan <span class="dv">24</span> <span class="dv">03</span><span class="sc">:</span><span class="dv">34</span><span class="sc">:</span><span class="dv">39</span> <span class="fl">2025.</span></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>For each parameter, n_eff is a crude measure of effective sample size,</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>and Rhat is the potential scale reduction factor on split <span class="fu">chains</span> (at </span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>convergence, <span class="at">Rhat=</span><span class="dv">1</span>).</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We can compare this model against the previous one to see which one highest ELPD value for better predictive performance.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extracting ELPD leave-one-out results from model with both continuous and categorical variables</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>log_lik_with_cat <span class="ot">&lt;-</span> <span class="fu">extract_log_lik</span>(crr.negbin.model2, <span class="at">merge_chains =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>r_eff_with_cat <span class="ot">&lt;-</span> <span class="fu">relative_eff</span>(log_lik_with_cat)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>loo_cat <span class="ot">&lt;-</span> <span class="fu">loo</span>(log_lik_with_cat, r_eff_with_cat, <span class="at">cores =</span> <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(loo_cat)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>Computed from <span class="dv">9000</span> by <span class="dv">743</span> log<span class="sc">-</span>likelihood matrix.</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>         Estimate   SE</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>elpd_loo  <span class="sc">-</span><span class="fl">1026.7</span> <span class="fl">37.7</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>p_loo         <span class="fl">7.7</span>  <span class="fl">1.0</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>looic      <span class="fl">2053.4</span> <span class="fl">75.4</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="sc">------</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>MCSE of elpd_loo is <span class="dv">0</span>.<span class="fl">0.</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>MCSE and ESS estimates assume independent <span class="fu">draws</span> (<span class="at">r_eff=</span><span class="dv">1</span>).</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>All Pareto k estimates are <span class="fu">good</span> (k <span class="sc">&lt;</span> <span class="fl">0.7</span>).</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>See <span class="fu">help</span>(<span class="st">'pareto-k-diagnostic'</span>) <span class="cf">for</span> details.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>This first model’s ELPD was <code>-1022.1</code>, and full model’s show <code>-1026.7</code>. Based on this result, it is clear that the first model is better in terms of predictive performance since its <strong>ELPD</strong> is higher (i.e., <code>-1022.1</code> vs <code>-1026.7</code>). So its best to stick with the first model, unless there is a strong theoretical reason to use second model (i.e., accounting for confounding).</p>
+</section>
+</section>
+<section id="tasks" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="tasks"><span class="header-section-number">3.4</span> Tasks</h2>
+<section id="task-1---obesity-and-fastfoods-in-london" class="level3" data-number="3.4.1">
+<h3 data-number="3.4.1" class="anchored" data-anchor-id="task-1---obesity-and-fastfoods-in-london"><span class="header-section-number">3.4.1</span> Task 1 - Obesity and Fastfoods in London</h3>
+<p>Accessibility to junk food restaurants in young adolescents especially after school hours is a growing cause for concern. Especially, now that many young adults have a sedentary lifestyle; hence obesity rates among this population is increasing in the UK.</p>
+<p><strong>Try this problem in Stan</strong>: Use the dataset <code>Obesity and Fastfoods in MSOAs data.csv</code> to determine the links between prevalence of obesity in high school students and density of fast food (cheap) restaurant and deprivation in MSOAs in London. Implement a Bayesian GLM using <strong>Stan</strong> code.</p>
+<p><strong>Variable names:</strong></p>
+<ul>
+<li><code>SEQID</code>: ID number for row</li>
+<li><code>MSOA11CD</code>: Unique identifier for MSOA area</li>
+<li><code>MSOA11NM</code>: Name of the MSOA area</li>
+<li><code>OBESE</code>: Number of child identified as obese in MSOA in London</li>
+<li><code>TOTAL</code>: Total number of children surveyed for BMI measurements</li>
+<li><code>IMDMSOA</code>: Area-level socioeconomic deprivation score (higher scores means higher deprivation and vice versa)</li>
+<li><code>RESTCAT</code>: Categorical variable for classifying an MSOA in terms of density of junk/cheap fast food outlets restaurants: <code>1 = 1 to 10</code>, <code>2= 11 to 25</code>, <code>3= 26 to 50</code> and <code>4= 51 to 300</code>.</li>
+</ul>
+<p><strong>HINT</strong>: You might want to consider using the following functions: <code>binomial_logit()</code> or <code>binomial()</code> in the <strong>model</strong> block and reporting the <strong>odd ratios</strong> using the <strong>generated quantities</strong> block. You might want to consider computing the exceedance probabilities for the <strong>odd ratios</strong> using the threshold of 1.</p>
+</section>
+<section id="task-2---factors-affecting-house-prices-in-london-2015" class="level3" data-number="3.4.2">
+<h3 data-number="3.4.2" class="anchored" data-anchor-id="task-2---factors-affecting-house-prices-in-london-2015"><span class="header-section-number">3.4.2</span> Task 2 - Factors affecting house prices in London (2015)</h3>
+<p><strong>Try this problem in Stan</strong>: Use <code>London LSOA 2015 data.csv</code> data pertained house prices in 2015, and assess it’s relationship with public transport accessibility (PTA), average income and socioeconomic deprivation (IMD) as the independent variables. Implement a Bayesian GLM using Stan code.</p>
+<p><strong>Variables names:</strong></p>
+<ul>
+<li><code>LSOACODE</code>: Unique identification code for the geographic area</li>
+<li><code>AVEPRICE</code>: (Dependent variable) Average house price estimated for the LSOA in 2015</li>
+<li><code>AVEINCOME</code>: Estimated average annual income for households within an LSOA in 2015</li>
+<li><code>IMDSCORE</code>: Deprivation score for an LSOA in 2015</li>
+<li><code>PTAINDEX</code>: Measures levels of access/connectivity to public transport</li>
+</ul>
+<p><strong>HINT</strong>: You might want to consider using the following functions: <code>normal()</code> in the <strong>model</strong> block. You might want to consider computing the exceedance probabilities for the <strong>coefficients</strong> using the threshold of 0.</p>
+<div class="note">
+<p><strong>Note:</strong> Solutions will be made available later today.</p>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+      }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
+          if (lineIds.length > 0) {
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            placeBand(gutterDiv, el, lastEl);
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
+  </script>
+<nav class="page-navigation" aria-label="Page">
+  <div class="nav-page nav-page-previous">
+      <a href="./introduction-to-bayesian-inference.html" class="pagination-link" aria-label="Introduction to Bayesian Inference">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction to Bayesian Inference</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./bayesian-hierarchical-regression-models.html" class="pagination-link" aria-label="Bayesian Hierarchical Regression Models">
+        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Bayesian Hierarchical Regression Models</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
